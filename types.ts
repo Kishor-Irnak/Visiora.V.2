@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
-export type OrderStatus = 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
-export type PaymentStatus = 'Paid' | 'Pending' | 'Failed' | 'Refunded';
+export type OrderStatus = "Pending" | "Shipped" | "Delivered" | "Cancelled";
+export type PaymentStatus = "Paid" | "Pending" | "Failed" | "Refunded";
 
 export interface Order {
   id: string;
@@ -39,7 +39,7 @@ export interface Product {
   price: number;
   stock: number;
   category: string;
-  status: 'Active' | 'Draft' | 'Archived';
+  status: "Active" | "Draft" | "Archived";
   image: string;
   sales: number;
 }
@@ -52,8 +52,8 @@ export interface InventoryItem extends Product {
 export interface FulfillmentOrder {
   orderId: string;
   customerName: string;
-  partner: 'FedEx' | 'UPS' | 'DHL' | 'USPS';
-  status: 'Pending' | 'Shipped' | 'Delivered' | 'Failed';
+  partner: "FedEx" | "UPS" | "DHL" | "USPS";
+  status: "Pending" | "Shipped" | "Delivered" | "Failed";
   estimatedDelivery: string;
   lastUpdate: string;
   deliveryTimeDays: number;
@@ -79,16 +79,17 @@ export interface PageStat {
 export interface ReferrerStat {
   source: string;
   visits: number;
+  [key: string]: any;
 }
 
 export interface DiscountCode {
   id: string;
   code: string;
-  discountType: 'Percentage' | 'Fixed';
+  discountType: "Percentage" | "Fixed";
   value: number;
   usageCount: number;
   revenueGenerated: number;
-  status: 'Active' | 'Expired' | 'Scheduled';
+  status: "Active" | "Expired" | "Scheduled";
   expiryDate: string;
 }
 
@@ -102,7 +103,7 @@ export interface KPI {
   label: string;
   value: string | number;
   change?: number; // percentage
-  trend?: 'up' | 'down' | 'neutral';
+  trend?: "up" | "down" | "neutral";
 }
 
 export interface NavItem {

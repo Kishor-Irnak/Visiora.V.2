@@ -8,6 +8,22 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       host: "0.0.0.0",
+      proxy: {
+        "/api/shopify": {
+          target: `https://${env.VITE_SHOPIFY_SHOP_URL}/admin/api/2024-01`,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/shopify/, ""),
+          configure: (proxy, _options) => {
+            proxy.on("proxyReq", (proxyReq, _req, _res) => {
+              proxyReq.setHeader(
+                "X-Shopify-Access-Token",
+                env.VITE_SHOPIFY_ACCESS_TOKEN
+              );
+              proxyReq.setHeader("Content-Type", "application/json");
+            });
+          },
+        },
+      },
     },
     plugins: [react()],
     define: {

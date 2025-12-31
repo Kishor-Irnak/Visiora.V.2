@@ -50,7 +50,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
+    <div className="min-h-screen bg-background text-foreground flex w-full overflow-x-hidden relative">
       <Sidebar
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
