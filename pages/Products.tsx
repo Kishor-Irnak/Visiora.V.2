@@ -9,6 +9,8 @@ import {
   Loader2,
   MoreHorizontal,
   Package,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // --- Styled Components (Attio Style) ---
@@ -38,6 +40,8 @@ export const Products: React.FC = () => {
   const [products, setProducts] = useState<AppProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 50;
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -64,6 +68,30 @@ export const Products: React.FC = () => {
     );
   }, [products, searchQuery]);
 
+  // Pagination Logic
+  const paginationData = useMemo(() => {
+    const totalProducts = filteredProducts.length;
+    const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    const endIndex = startIndex + PRODUCTS_PER_PAGE;
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+    return {
+      totalProducts,
+      totalPages,
+      startIndex,
+      endIndex,
+      paginatedProducts,
+      showingStart: totalProducts > 0 ? startIndex + 1 : 0,
+      showingEnd: Math.min(endIndex, totalProducts),
+    };
+  }, [filteredProducts, currentPage, PRODUCTS_PER_PAGE]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   const handleExport = () => {
     const headers = ["ID", "Name", "Category", "Price", "Stock", "Status"];
     const rows = filteredProducts.map((p) => [
@@ -81,6 +109,18 @@ export const Products: React.FC = () => {
     link.href = encodeURI(csvContent);
     link.download = "products.csv";
     link.click();
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < paginationData.totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   if (loading) {
@@ -127,34 +167,69 @@ export const Products: React.FC = () => {
         </div>
       </div>
 
-      {/* --- MOBILE CARD LIST (Visible on small screens) --- */}
-      <div className="md:hidden space-y-4">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <span className="font-semibold text-foreground text-base">
-                    {product.name}
-                  </span>
-                  <p className="text-xs text-muted-foreground">
-                    ID: {product.id}
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    product.status === "Active" ? "success" : "secondary"
-                  }
-                >
-                  {product.status}
-                </Badge>
+      {/* Pagination Controls */}
+      {paginationData.totalProducts > 0 && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 px-1">
+          <div className="text-sm text-muted-foreground">
+            Showing{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.showingStart}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.showingEnd}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.totalProducts}
+            </span>{" "}
+            products
+          </div>
+
+          {paginationData.totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <AttioButton
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                className="shrink-0"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Previous
+              </AttioButton>
+
+              <div className="flex items-center gap-1.5 px-3">
+                <span className="text-sm font-medium text-foreground">
+                  {currentPage}
+                </span>
+                <span className="text-sm text-muted-foreground">/</span>
+                <span className="text-sm text-muted-foreground">
+                  {paginationData.totalPages}
+                </span>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-lg bg-muted border border-border overflow-hidden shrink-0">
+              <AttioButton
+                onClick={goToNextPage}
+                disabled={currentPage === paginationData.totalPages}
+                className="shrink-0"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </AttioButton>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- MOBILE CARD LIST (Visible on small screens) --- */}
+      <div className="md:hidden space-y-3">
+        {paginationData.paginatedProducts.length > 0 ? (
+          paginationData.paginatedProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-card border border-border rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start gap-3 mb-3">
+                <div className="h-16 w-16 rounded-lg bg-muted border border-border overflow-hidden shrink-0">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -162,15 +237,41 @@ export const Products: React.FC = () => {
                   />
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {product.category}
+                  <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
+                    {product.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    ID: {product.id}
                   </p>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span>Stock: {product.stock}</span>
-                    <span>•</span>
-                    <span>₹{product.price.toFixed(2)}</span>
+                  <Badge variant="outline" className="text-xs font-normal">
+                    {product.category}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex items-center gap-3">
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Stock</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {product.stock}
+                    </p>
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Price</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      ₹{product.price.toFixed(2)}
+                    </p>
                   </div>
                 </div>
+                <Badge
+                  variant={
+                    product.status === "Active" ? "success" : "secondary"
+                  }
+                  className="text-xs"
+                >
+                  {product.status}
+                </Badge>
               </div>
             </div>
           ))
@@ -204,8 +305,8 @@ export const Products: React.FC = () => {
               </thead>
 
               <tbody className="bg-card divide-y divide-border">
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
+                {paginationData.paginatedProducts.length > 0 ? (
+                  paginationData.paginatedProducts.map((product) => (
                     <tr
                       key={product.id}
                       className="group transition-colors cursor-default hover:bg-muted/50"

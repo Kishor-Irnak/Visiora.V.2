@@ -134,26 +134,18 @@ export const WebsiteTraffic: React.FC = () => {
         views: {
           label: "Page Views",
           value: totalViews.toLocaleString(),
-          change: 12.5,
-          trend: "up" as const,
         },
         visitors: {
           label: "Unique Visitors",
           value: totalVisitors.toLocaleString(),
-          change: 8.1,
-          trend: "up" as const,
         },
         duration: {
           label: "Avg. Session",
           value: "2m 45s",
-          change: 1.2,
-          trend: "up" as const,
         },
         bounce: {
           label: "Bounce Rate",
           value: "42.3%",
-          change: -2.5,
-          trend: "down" as const,
         },
       },
     };
@@ -170,7 +162,7 @@ export const WebsiteTraffic: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Metrics Section */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <KPICard {...kpis.views} />
         <KPICard {...kpis.visitors} />
         <KPICard {...kpis.duration} />

@@ -58,7 +58,9 @@ function mapFinancialStatus(status: string): string {
 
 export const fetchOrders = async (): Promise<AppOrder[]> => {
   try {
-    const response = await fetch(`${API_BASE}/orders.json?status=any&limit=50`);
+    const response = await fetch(
+      `${API_BASE}/orders.json?status=any&limit=250`
+    );
     if (!response.ok) throw new Error("Failed to fetch orders");
     const data = await response.json();
 

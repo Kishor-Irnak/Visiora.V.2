@@ -106,22 +106,22 @@ export const OrderItems: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <div className="h-[300px] w-full">
+            <div className="h-[280px] sm:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={analytics.mostSold}
                   layout="vertical"
-                  margin={{ left: 20 }}
+                  margin={{ left: 10, right: 10, top: 5, bottom: 5 }}
                 >
                   <XAxis type="number" hide />
                   <YAxis
                     type="category"
                     dataKey="name"
                     stroke="#888888"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
-                    width={100}
+                    width={80}
                   />
                   <Tooltip
                     cursor={{ fill: "transparent" }}
@@ -161,19 +161,25 @@ export const OrderItems: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <div className="h-[300px] w-full">
+            <div className="h-[280px] sm:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analytics.revenueByProduct.slice(0, 6)}>
+                <BarChart
+                  data={analytics.revenueByProduct.slice(0, 6)}
+                  margin={{ left: 0, right: 10, top: 10, bottom: 20 }}
+                >
                   <XAxis
                     dataKey="name"
                     stroke="#888888"
-                    fontSize={12}
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
                   />
                   <YAxis
                     stroke="#888888"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(value) => `₹${value}`}
@@ -191,7 +197,6 @@ export const OrderItems: React.FC = () => {
                     }}
                     itemStyle={{ color: "hsl(var(--foreground))" }}
                   />
-                  <Legend />
                   <Bar
                     dataKey="revenue"
                     name="Net Revenue"
@@ -214,7 +219,59 @@ export const OrderItems: React.FC = () => {
             Detailed breakdown of individual line items sold (Last 50 orders).
           </CardDescription>
         </CardHeader>
-        <div className="overflow-x-auto">
+
+        {/* Mobile Card View */}
+        <div className="md:hidden px-3 pb-3 space-y-3">
+          {allItems.length === 0 ? (
+            <div className="py-16 text-center text-muted-foreground">
+              No items found.
+            </div>
+          ) : (
+            allItems.slice(0, 50).map((item, idx) => (
+              <div
+                key={`${item.orderId}-${idx}`}
+                className="bg-card border border-border rounded-lg p-3 shadow-sm"
+              >
+                <div className="mb-2">
+                  <h3 className="font-semibold text-foreground text-sm leading-tight">
+                    {item.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Order {item.orderId} • {item.date}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <div className="flex gap-4">
+                    <div className="space-y-0.5">
+                      <p className="text-xs text-muted-foreground">Quantity</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {item.quantity}
+                      </p>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-xs text-muted-foreground">
+                        Unit Price
+                      </p>
+                      <p className="text-sm font-semibold text-foreground">
+                        ₹{item.price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Revenue</p>
+                    <p className="text-sm font-bold text-primary">
+                      ₹{item.netRevenue.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm text-left min-w-[800px]">
             <thead className="bg-muted/50 text-muted-foreground font-medium border-b">
               <tr>

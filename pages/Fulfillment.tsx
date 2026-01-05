@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "../components/ui/Card";
+import { KPICard } from "../components/Dashboard/KPICard";
 import { Badge } from "../components/ui/Badge";
 import { fetchOrders, AppOrder } from "../api/orders";
 import {
@@ -180,54 +181,27 @@ export const Fulfillment: React.FC = () => {
       </div>
 
       {/* Fulfillment Status Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-l-4 border-l-yellow-500">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Pending
-              </p>
-              <p className="text-2xl font-bold">{analytics.counts.Pending}</p>
-            </div>
-            <Clock className="h-8 w-8 text-yellow-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Shipped
-              </p>
-              <p className="text-2xl font-bold">{analytics.counts.Shipped}</p>
-            </div>
-            <Truck className="h-8 w-8 text-blue-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Delivered
-              </p>
-              <p className="text-2xl font-bold">{analytics.counts.Delivered}</p>
-            </div>
-            <CheckCircle className="h-8 w-8 text-green-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-red-500">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Failed
-              </p>
-              <p className="text-2xl font-bold">{analytics.counts.Failed}</p>
-            </div>
-            <XCircle className="h-8 w-8 text-red-500 opacity-50" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          label="Pending"
+          value={analytics.counts.Pending.toString()}
+          icon={<Clock className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Shipped"
+          value={analytics.counts.Shipped.toString()}
+          icon={<Truck className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Delivered"
+          value={analytics.counts.Delivered.toString()}
+          icon={<CheckCircle className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Failed"
+          value={analytics.counts.Failed.toString()}
+          icon={<XCircle className="h-6 w-6" />}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

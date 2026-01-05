@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { fetchOrders, AppOrder } from "../api/orders";
+import { KPICard } from "../components/Dashboard/KPICard";
 import {
   Card,
   CardContent,
@@ -13,13 +14,10 @@ import {
   Loader2,
   Search,
   MoreHorizontal,
-  Clock,
   Filter,
   ArrowUpDown,
-  DollarSign,
-  ShoppingBag,
-  CreditCard,
-  Activity,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // --- Styled Components (Attio Style) ---
@@ -85,6 +83,8 @@ export const Orders: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [orders, setOrders] = useState<AppOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ORDERS_PER_PAGE = 50;
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -128,6 +128,30 @@ export const Orders: React.FC = () => {
     });
   }, [orders, activeTab, searchQuery]);
 
+  // Pagination Logic
+  const paginationData = useMemo(() => {
+    const totalOrders = filteredOrders.length;
+    const totalPages = Math.ceil(totalOrders / ORDERS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ORDERS_PER_PAGE;
+    const endIndex = startIndex + ORDERS_PER_PAGE;
+    const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+
+    return {
+      totalOrders,
+      totalPages,
+      startIndex,
+      endIndex,
+      paginatedOrders,
+      showingStart: totalOrders > 0 ? startIndex + 1 : 0,
+      showingEnd: Math.min(endIndex, totalOrders),
+    };
+  }, [filteredOrders, currentPage, ORDERS_PER_PAGE]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]);
+
   const handleExport = () => {
     const headers = ["Order ID", "Date", "Customer", "Total", "Status"];
     const rows = filteredOrders.map((o) => [
@@ -144,6 +168,18 @@ export const Orders: React.FC = () => {
     link.href = encodeURI(csvContent);
     link.download = "orders.csv";
     link.click();
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < paginationData.totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   const getStatusVariant = (status: string) => {
@@ -172,77 +208,47 @@ export const Orders: React.FC = () => {
     orders.filter((o) => o.status === status).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 pb-6">
       {/* --- HEADER SECTION --- */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Orders
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage and track all your orders in one place.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <AttioButton onClick={handleExport} className="shrink-0">
-            <Download className="w-4 h-4 mr-2 text-muted-foreground" />
-            Export
+          <AttioButton
+            onClick={handleExport}
+            className="shrink-0 w-full sm:w-auto"
+          >
+            <Download className="w-4 h-4 sm:mr-2 text-muted-foreground" />
+            <span className="sm:inline">Export</span>
           </AttioButton>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Revenue
-              </p>
-              <p className="text-2xl font-bold">
-                ₹{stats.totalRevenue.toLocaleString()}
-              </p>
-            </div>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Orders
-              </p>
-              <p className="text-2xl font-bold">{stats.totalOrders}</p>
-            </div>
-            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Pending Orders
-              </p>
-              <p className="text-2xl font-bold">{stats.pendingOrders}</p>
-            </div>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Avg. Order Value
-              </p>
-              <p className="text-2xl font-bold">
-                ₹{stats.avgOrderValue.toFixed(0)}
-              </p>
-            </div>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          label="Total Revenue"
+          value={`₹${stats.totalRevenue.toLocaleString()}`}
+        />
+        <KPICard label="Total Orders" value={stats.totalOrders.toString()} />
+        <KPICard
+          label="Pending Orders"
+          value={stats.pendingOrders.toString()}
+        />
+        <KPICard
+          label="Avg. Order Value"
+          value={`₹${stats.avgOrderValue.toFixed(0)}`}
+        />
       </div>
 
       {/* Search & Filter Section */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 sm:gap-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
@@ -250,7 +256,7 @@ export const Orders: React.FC = () => {
             placeholder="Search by ID or Customer..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-10 w-full rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-all"
+            className="pl-9 h-11 sm:h-10 w-full rounded-md border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-all"
           />
         </div>
 
@@ -287,55 +293,121 @@ export const Orders: React.FC = () => {
         </div>
       </div>
 
-      {/* --- MOBILE CARD LIST (Visible on small screens) --- */}
-      <div className="md:hidden space-y-4">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <span className="font-semibold text-foreground text-base">
-                    #{order.id}
-                  </span>
-                  <p className="text-xs text-muted-foreground">{order.date}</p>
-                </div>
-                <Badge variant={getStatusVariant(order.status) as any}>
-                  {order.status}
-                </Badge>
+      {/* Pagination Controls */}
+      {paginationData.totalOrders > 0 && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 px-1">
+          <div className="text-sm text-muted-foreground">
+            Showing{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.showingStart}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.showingEnd}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.totalOrders}
+            </span>{" "}
+            orders
+          </div>
+
+          {paginationData.totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <AttioButton
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                className="shrink-0"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Previous
+              </AttioButton>
+
+              <div className="flex items-center gap-1.5 px-3">
+                <span className="text-sm font-medium text-foreground">
+                  {currentPage}
+                </span>
+                <span className="text-sm text-muted-foreground">/</span>
+                <span className="text-sm text-muted-foreground">
+                  {paginationData.totalPages}
+                </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <AttioButton
+                onClick={goToNextPage}
+                disabled={currentPage === paginationData.totalPages}
+                className="shrink-0"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </AttioButton>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- MOBILE CARD LIST (Visible on small screens) --- */}
+      <div className="md:hidden space-y-3">
+        {paginationData.paginatedOrders.length > 0 ? (
+          paginationData.paginatedOrders.map((order) => (
+            <div
+              key={order.id}
+              className="bg-card border border-border rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
                   {order.customerName.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {order.customerName}
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-foreground text-sm leading-tight">
+                      {order.customerName}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Order #{order.id} · {order.date}
                   </p>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        order.paymentStatus === "Paid"
-                          ? "bg-emerald-500"
-                          : "bg-amber-500"
-                      }`}
-                    />
-                    {order.paymentStatus}
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={getStatusVariant(order.status) as any}
+                      className="text-[10px] px-1.5 py-0 h-5"
+                    >
+                      {order.status}
+                    </Badge>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <div
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          order.paymentStatus === "Paid"
+                            ? "bg-emerald-500"
+                            : "bg-amber-500"
+                        }`}
+                      />
+                      {order.paymentStatus}
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-foreground text-base">
-                    ₹{order.total.toFixed(2)}
-                  </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex items-center gap-3">
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Items</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {order.items}
+                    </p>
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      ₹{order.total.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex flex-col items-center justify-center py-16 text-center px-4">
             <Filter className="w-12 h-12 mb-4 text-muted-foreground opacity-20" />
             <p className="text-sm text-muted-foreground mb-4">
               No orders found.
@@ -376,8 +448,8 @@ export const Orders: React.FC = () => {
               </thead>
 
               <tbody className="bg-card divide-y divide-border">
-                {filteredOrders.length > 0 ? (
-                  filteredOrders.map((order) => {
+                {paginationData.paginatedOrders.length > 0 ? (
+                  paginationData.paginatedOrders.map((order) => {
                     return (
                       <tr
                         key={order.id}

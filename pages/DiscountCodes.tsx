@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "../components/ui/Card";
+import { KPICard } from "../components/Dashboard/KPICard";
 import { Badge } from "../components/ui/Badge";
 import { fetchDiscountCodes, AppDiscountCode } from "../api/discounts";
 import {
@@ -177,60 +178,27 @@ export const DiscountCodes: React.FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Codes
-              </p>
-              <p className="text-2xl font-bold">{stats.totalCodes}</p>
-            </div>
-            <Tag className="h-5 w-5 text-primary opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Usage
-              </p>
-              <p className="text-2xl font-bold">
-                {stats.usageCount.toLocaleString()}
-              </p>
-            </div>
-            <Coins className="h-5 w-5 text-blue-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Avg. Discount
-              </p>
-              <p className="text-2xl font-bold">
-                {stats.lossPercentage.toFixed(1)}%
-              </p>
-            </div>
-            <TrendingDown className="h-5 w-5 text-green-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="p-6 flex items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Revenue Generated
-              </p>
-              <p className="text-2xl font-bold">
-                ₹{(stats.revenueWithDiscount / 1000).toFixed(1)}k
-              </p>
-            </div>
-            <Percent className="h-5 w-5 text-purple-500 opacity-50" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard
+          label="Total Codes"
+          value={stats.totalCodes.toString()}
+          icon={<Tag className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Total Usage"
+          value={stats.usageCount.toLocaleString()}
+          icon={<Coins className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Avg. Discount"
+          value={`${stats.lossPercentage.toFixed(1)}%`}
+          icon={<TrendingDown className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Revenue Generated"
+          value={`₹${(stats.revenueWithDiscount / 1000).toFixed(1)}k`}
+          icon={<Percent className="h-6 w-6" />}
+        />
       </div>
 
       {/* Filter Section */}
@@ -258,7 +226,7 @@ export const DiscountCodes: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-lg font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded border border-border/50">
+                    <span className="font-mono text-lg font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded border border-border">
                       {code.code}
                     </span>
                   </div>
@@ -328,7 +296,7 @@ export const DiscountCodes: React.FC = () => {
                       className="group transition-colors cursor-default hover:bg-muted/50"
                     >
                       <td className="px-6 py-4">
-                        <span className="font-mono font-medium text-foreground bg-muted/50 px-2 py-1 rounded text-sm border border-border/50">
+                        <span className="font-mono font-medium text-foreground bg-muted/50 px-2 py-1 rounded text-sm border border-border">
                           {code.code}
                         </span>
                       </td>

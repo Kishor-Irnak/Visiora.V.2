@@ -24,7 +24,7 @@ export interface AppCustomer {
 
 export const fetchCustomers = async (): Promise<AppCustomer[]> => {
   try {
-    const response = await fetch(`${API_BASE}/customers.json?limit=50`);
+    const response = await fetch(`${API_BASE}/customers.json?limit=250`);
     if (!response.ok) throw new Error("Failed to fetch customers");
     const data = await response.json();
 

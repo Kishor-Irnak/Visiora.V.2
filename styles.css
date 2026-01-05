@@ -1,0 +1,299 @@
+/* -------------------------------------------------------------------------- */
+/*   MASTER DESIGN SYSTEM - APEXIFY / LINEAR DARK THEME                       */
+/*   Refactored to Standard CSS (No @apply) for compatibility with CDN        */
+/* -------------------------------------------------------------------------- */
+
+:root {
+  /* Core Backgrounds */
+  --bg-main: #0b0d10; /* Deepest background */
+  --bg-surface: #111418; /* Secondary background (sidebar/header) */
+  --bg-card: #151a21; /* Card background */
+
+  /* Brand Colors */
+  --brand-primary: 124 58 237; /* #7c3aed (Violet) */
+  --brand-gradient-start: #7c3aed;
+  --brand-gradient-end: #a855f7;
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  /* Borders & Effects */
+  --border-subtle: rgba(
+    255,
+    255,
+    255,
+    0.08
+  ); /* Slightly increased visibility */
+  --border-highlight: rgba(255, 255, 255, 0.12);
+  --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.15);
+  --card-radius: 14px;
+
+  /* Status Colors */
+  --success: 34 197 94; /* #22c55e */
+  --warning: 250 204 21; /* #facc15 */
+  --danger: 239 68 68; /* #ef4444 */
+  --info: 59 130 246; /* #3b82f6 */
+
+  /* -------------------------------------------------------------------------- */
+  /*   TAILWIND MAPPING (Ensures existing components update automatically)      */
+  /* -------------------------------------------------------------------------- */
+
+  /* Base - HSL Values for Tailwind Config */
+  --background: 216 20% 5%; /* Matches #0b0d10 approx hue */
+  --foreground: 0 0% 100%;
+
+  /* Card */
+  --card: 216 22% 10%; /* Matches #151a21 approx hue */
+  --card-foreground: 210 40% 98%;
+  --popover: 216 22% 10%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Primary (Brand) - Converted to HSL to fix white button issue */
+  --primary: 262 83% 58%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary */
+  --secondary: 216 15% 15%;
+  --secondary-foreground: 210 40% 98%;
+
+  /* Muted */
+  --muted: 216 15% 15%;
+  --muted-foreground: 215 15% 65%; /* Matches text-secondary */
+
+  /* Accent */
+  --accent: 216 15% 18%; /* Slightly lighter than card for hover */
+  --accent-foreground: 0 0% 100%;
+
+  /* Destructive */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Borders & Input */
+  --border: 216 15% 18%; /* Matches border-subtle roughly in HSL */
+  --input: 216 15% 18%;
+  --ring: var(--brand-primary);
+
+  /* Radius */
+  --radius: 0.75rem; /* ~12px to match card-radius vibe */
+
+  /* Sidebar (Restored & Mapped) */
+  --sidebar: 216 22% 8%; /* Matches --bg-surface #111418 */
+  --sidebar-foreground: 215 15% 65%;
+  --sidebar-primary: var(--brand-primary);
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 216 15% 12%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 216 15% 12%; /* Very subtle dark border */
+  --sidebar-ring: var(--brand-primary);
+
+  /* Charts */
+  --chart-1: 263 70% 50%; /* Violet */
+  --chart-2: 173 58% 39%; /* Emerald */
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+}
+
+/* Force Dark Mode defaults */
+.dark {
+  --background: 216 20% 5%;
+  --foreground: 0 0% 100%;
+}
+
+* {
+  /* Set default border to 5% opacity white.
+     CRITICAL: Replaces @apply which fails in CDN mode, fixing the white borders. */
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+body {
+  background-color: #0b0d10;
+  color: white;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* -------------------------------------------------------------------------- */
+/*   REUSABLE COMPONENT CLASSES (Converted to Standard CSS)                   */
+/* -------------------------------------------------------------------------- */
+
+/* Standard Dashboard Card */
+.dashboard-card {
+  background-color: #151a21;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1rem; /* rounded-2xl */
+  padding: 1.25rem; /* p-5 */
+  transition: all 300ms;
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(124, 58, 237, 0.2);
+}
+
+/* Primary Highlight Card (Total Revenue) */
+.card-primary {
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  color: white;
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  box-shadow: 0 10px 30px -10px rgba(124, 58, 237, 0.5);
+}
+
+.card-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 45%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background-color: rgba(21, 26, 33, 0.6); /* bg-[#151a21]/60 */
+  backdrop-filter: blur(24px); /* backdrop-blur-xl */
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Interactive List Rows */
+.table-row-hover {
+  transition: background-color 200ms;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.table-row-hover:last-child {
+  border-bottom: 0;
+}
+.table-row-hover:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Sidebar Specifics */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* gap-3 */
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border-radius: 0.5rem;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+  color: #9ca3af; /* text-gray-400 */
+  transition: all 200ms;
+}
+.sidebar-link:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.sidebar-link.active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: #a855f7; /* purple-500 */
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+
+/* Text Utilities */
+.text-secondary {
+  color: #a1a1aa;
+}
+.text-muted {
+  color: #71717a;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* -------------------------------------------------------------------------- */
+/*   PREMIUM KPI CARD STYLE (Clean Attio-Inspired Design)                    */
+/* -------------------------------------------------------------------------- */
+
+.premium-kpi-card {
+  position: relative;
+  background-color: #151a21;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.875rem; /* rounded-xl */
+  padding: 1.5rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.premium-kpi-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(124, 58, 237, 0.15);
+}
+
+/* Icon container with subtle gradient */
+.kpi-icon-box {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  background-color: rgba(124, 58, 237, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 250ms ease;
+}
+
+.kpi-icon-box svg,
+.kpi-icon-box {
+  color: rgb(168, 85, 247);
+}
+
+.premium-kpi-card:hover .kpi-icon-box {
+  background-color: rgba(124, 58, 237, 0.15);
+  border-color: rgba(168, 85, 247, 0.35);
+}

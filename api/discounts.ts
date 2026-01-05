@@ -23,7 +23,7 @@ function getDiscountStatus(rule: any): "Active" | "Expired" | "Scheduled" {
 
 export const fetchDiscountCodes = async (): Promise<AppDiscountCode[]> => {
   try {
-    const response = await fetch(`${API_BASE}/price_rules.json?limit=50`);
+    const response = await fetch(`${API_BASE}/price_rules.json?limit=250`);
     if (!response.ok) return [];
     const data = await response.json();
 

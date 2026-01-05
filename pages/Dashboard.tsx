@@ -20,7 +20,15 @@ import {
 } from "recharts";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
-import { Calendar, Loader2 } from "lucide-react";
+import {
+  Calendar,
+  Loader2,
+  TrendingUp,
+  Wallet,
+  ShoppingBag,
+  Package,
+  CreditCard,
+} from "lucide-react";
 import { fetchDashboardMetrics } from "../api/dashboard";
 import { AppOrder, fetchOrders } from "../api/orders";
 import { AppProduct, fetchProducts } from "../api/products";
@@ -100,135 +108,184 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
-          <p className="text-muted-foreground">
-            Here's what's happening with your store today.
+    <div className="space-y-8 pb-8 relative">
+      {/* Background Glow Effect */}
+      <div className="absolute top-0 right-0 -z-10 h-[500px] w-[500px] bg-violet-600/10 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Welcome back. Here's your store overview.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="hidden sm:flex">
-            <Calendar className="mr-2 h-4 w-4" /> Today
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:flex border-white/10 bg-card/50 backdrop-blur-sm hover:bg-card/80"
+          >
+            <Calendar className="mr-2 h-4 w-4" />
+            Last 30 days
           </Button>
-          <Button size="sm">Download Report</Button>
+          <Button
+            size="sm"
+            className="bg-violet-600 hover:bg-violet-700 text-white border-0 shadow-lg shadow-violet-500/25"
+          >
+            <TrendingUp className="mr-2 h-4 w-4" />
+            View Report
+          </Button>
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      {/* KPI Cards */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <KPICard
-          label="Total Revenue (Recent)"
+          label="Total Revenue"
           value={`₹${recentRevenue.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}`}
-          change={0}
-          trend="up"
+          variant="gradient"
+          icon={<Wallet className="h-6 w-6" />}
         />
         <KPICard
           label="Orders"
           value={metrics.totalOrders.toString()}
-          change={0}
-          trend="up"
+          variant="glass"
+          icon={<ShoppingBag className="h-6 w-6" />}
         />
         <KPICard
           label="Products"
           value={metrics.totalProducts.toString()}
-          change={0}
-          trend="up"
+          variant="glass"
+          icon={<Package className="h-6 w-6" />}
         />
         <KPICard
           label="Avg. Order Value"
           value={`₹${aov.toFixed(2)}`}
-          change={0}
-          trend="neutral"
+          variant="glass"
+          icon={<CreditCard className="h-6 w-6" />}
         />
       </div>
 
+      {/* Charts Row 1: Revenue + Recent Products */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Revenue over time</CardTitle>
-            <CardDescription>
-              Daily revenue for the past 30 days.
-            </CardDescription>
+        {/* Revenue Chart */}
+        <Card className="col-span-1 lg:col-span-4 dashboard-card glass border-0">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-semibold text-foreground">
+                  Revenue Trend
+                </CardTitle>
+                <CardDescription className="text-xs mt-1">
+                  Daily revenue for the past 30 days
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px] w-full">
+          <CardContent className="pt-0">
+            <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={revenueData}>
                   <defs>
-                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <linearGradient
+                      id="colorRevenue"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis
-                    dataKey="name"
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(value) => `₹${value}`}
-                  />
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
-                    stroke="hsl(var(--border))"
+                    stroke="rgba(255,255,255,0.05)"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={10}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(value) => `₹${value}`}
+                    width={60}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      borderRadius: "8px",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: "rgba(20,20,25,0.9)",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      fontSize: "12px",
+                      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
                     }}
-                    itemStyle={{ color: "hsl(var(--foreground))" }}
+                    itemStyle={{ color: "#d8b4fe" }}
                   />
                   <Area
                     type="monotone"
                     dataKey="value"
-                    stroke="#3b82f6"
+                    stroke="#8b5cf6"
+                    strokeWidth={3}
+                    dot={false}
                     fillOpacity={1}
-                    fill="url(#colorValue)"
-                    strokeWidth={2}
+                    fill="url(#colorRevenue)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Products</CardTitle>
-            <CardDescription>Newest products in your store.</CardDescription>
+
+        {/* Recent Products */}
+        <Card className="col-span-1 lg:col-span-3 dashboard-card glass border-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold text-foreground">
+              Latest Products
+            </CardTitle>
+            <CardDescription className="text-xs mt-1">
+              Recently added to your catalog
+            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="space-y-4">
               {products.slice(0, 5).map((product, i) => (
-                <div key={product.id} className="flex items-center">
-                  <div className="relative h-10 w-10 overflow-hidden rounded-md border mr-3">
+                <div
+                  key={product.id}
+                  className="flex items-center gap-3 group p-2 rounded-lg hover:bg-white/5 transition-colors -mx-2"
+                >
+                  <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-white/10 bg-muted/50 shrink-0">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <div className="ml-2 space-y-1 flex-1">
-                    <p className="text-sm font-medium leading-none">
+                  <div className="flex-1 min-w-0 space-y-0.5">
+                    <p className="text-sm font-medium leading-none truncate group-hover:text-violet-400 transition-colors">
                       {product.name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground truncate">
                       {product.category}
                     </p>
                   </div>
-                  <div className="font-medium text-sm">₹{product.price}</div>
+                  <div className="text-sm font-semibold shrink-0">
+                    ₹{product.price.toLocaleString()}
+                  </div>
                 </div>
               ))}
             </div>
@@ -236,110 +293,108 @@ export const Dashboard: React.FC = () => {
         </Card>
       </div>
 
+      {/* Charts Row 2: Recent Orders + Bar Chart */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>
-              Latest transactions from your store.
+        {/* Recent Orders */}
+        <Card className="col-span-1 lg:col-span-3 dashboard-card glass border-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold text-foreground">
+              Recent Orders
+            </CardTitle>
+            <CardDescription className="text-xs mt-1">
+              Latest transactions from customers
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="space-y-4">
               {recentOrders.slice(0, 5).map((order) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+                  className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 group px-2 hover:bg-white/5 transition-colors -mx-2 rounded-lg"
                 >
-                  <div className="flex flex-col">
-                    <span className="font-medium text-sm">
-                      {order.customerName}
-                    </span>
+                  <div className="flex flex-col gap-1 min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium group-hover:text-violet-400 transition-colors">
+                        {order.customerName}
+                      </span>
+                      <Badge
+                        variant={
+                          order.status === "Delivered"
+                            ? "success"
+                            : order.status === "Pending"
+                            ? "warning"
+                            : "secondary"
+                        }
+                        className="text-[10px] px-1.5 py-0"
+                      >
+                        {order.status}
+                      </Badge>
+                    </div>
                     <span className="text-xs text-muted-foreground">
-                      {order.id} • {order.items} items
+                      {order.id} · {order.items}{" "}
+                      {order.items === 1 ? "item" : "items"}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="block font-medium text-sm">
-                      ₹{order.total.toFixed(2)}
-                    </span>
-                    <Badge
-                      variant={
-                        order.status === "Delivered"
-                          ? "success"
-                          : order.status === "Pending"
-                          ? "warning"
-                          : "secondary"
-                      }
-                      className="scale-75 origin-right"
-                    >
-                      {order.status}
-                    </Badge>
+                  <div className="text-sm font-semibold shrink-0 ml-4">
+                    ₹{order.total.toFixed(2)}
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Traffic vs Conversion</CardTitle>
-            <CardDescription>
-              Session volume vs conversion rate.
+
+        {/* Order Volume Chart */}
+        <Card className="col-span-1 lg:col-span-4 dashboard-card glass border-0">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-semibold text-foreground">
+              Order Volume
+            </CardTitle>
+            <CardDescription className="text-xs mt-1">
+              Daily order count over time
             </CardDescription>
           </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px] w-full">
+          <CardContent className="pt-0">
+            <div className="h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={revenueData}>
-                  <XAxis
-                    dataKey="name"
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    stroke="#888888"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                  />
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
-                    stroke="hsl(var(--border))"
+                    stroke="rgba(255,255,255,0.05)"
+                  />
+                  <XAxis
+                    dataKey="name"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    dy={10}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    width={40}
                   />
                   <Tooltip
-                    cursor={{ fill: "transparent" }}
+                    cursor={{ fill: "rgba(139, 92, 246, 0.1)" }}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      borderRadius: "8px",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: "rgba(20,20,25,0.9)",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      fontSize: "12px",
+                      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
                     }}
                   />
                   <Bar
-                    yAxisId="left"
-                    dataKey="value"
-                    name="Sessions"
-                    fill="hsl(var(--primary))"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    yAxisId="right"
                     dataKey="value2"
                     name="Orders"
-                    fill="hsl(var(--muted-foreground))"
+                    fill="#8b5cf6"
                     radius={[4, 4, 0, 0]}
+                    maxBarSize={32}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -347,6 +402,6 @@ export const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 };

@@ -10,6 +10,8 @@ import {
   Mail,
   Calendar,
   Tag,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // --- Styled Components (Attio Style) ---
@@ -39,6 +41,8 @@ export const Customers: React.FC = () => {
   const [customers, setCustomers] = useState<AppCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const CUSTOMERS_PER_PAGE = 50;
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -64,6 +68,27 @@ export const Customers: React.FC = () => {
     );
   }, [customers, searchQuery]);
 
+  // Pagination Logic
+  const paginationData = useMemo(() => {
+    const totalCustomers = filteredCustomers.length;
+    const totalPages = Math.ceil(totalCustomers / CUSTOMERS_PER_PAGE);
+    const startIndex = (currentPage - 1) * CUSTOMERS_PER_PAGE;
+    const endIndex = startIndex + CUSTOMERS_PER_PAGE;
+    const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+    return {
+      totalCustomers,
+      totalPages,
+      paginatedCustomers,
+      showingStart: totalCustomers > 0 ? startIndex + 1 : 0,
+      showingEnd: Math.min(endIndex, totalCustomers),
+    };
+  }, [filteredCustomers, currentPage, CUSTOMERS_PER_PAGE]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   const handleExport = () => {
     const headers = ["Name", "Email", "Orders", "Spent", "Last Order"];
     const rows = filteredCustomers.map((c) => [
@@ -80,6 +105,18 @@ export const Customers: React.FC = () => {
     link.href = encodeURI(csvContent);
     link.download = "customers.csv";
     link.click();
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < paginationData.totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   if (loading) {
@@ -122,17 +159,70 @@ export const Customers: React.FC = () => {
         </div>
       </div>
 
+      {/* Pagination Controls */}
+      {paginationData.totalCustomers > 0 && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 py-3 px-1">
+          <div className="text-sm text-muted-foreground">
+            Showing{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.showingStart}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.showingEnd}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-foreground">
+              {paginationData.totalCustomers}
+            </span>{" "}
+            customers
+          </div>
+
+          {paginationData.totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <AttioButton
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                className="shrink-0"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Previous
+              </AttioButton>
+
+              <div className="flex items-center gap-1.5 px-3">
+                <span className="text-sm font-medium text-foreground">
+                  {currentPage}
+                </span>
+                <span className="text-sm text-muted-foreground">/</span>
+                <span className="text-sm text-muted-foreground">
+                  {paginationData.totalPages}
+                </span>
+              </div>
+
+              <AttioButton
+                onClick={goToNextPage}
+                disabled={currentPage === paginationData.totalPages}
+                className="shrink-0"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </AttioButton>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* --- MOBILE CARD LIST (Visible on small screens) --- */}
-      <div className="md:hidden space-y-4">
-        {filteredCustomers.length > 0 ? (
-          filteredCustomers.map((customer) => (
+      <div className="md:hidden space-y-3">
+        {paginationData.paginatedCustomers.length > 0 ? (
+          paginationData.paginatedCustomers.map((customer) => (
             <div
               key={customer.id}
-              className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3 hover:shadow-md transition-shadow"
+              className="bg-card border border-border rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between mb-2">
                 <div>
-                  <span className="font-semibold text-foreground text-base block">
+                  <span className="font-semibold text-foreground text-sm block leading-tight">
                     {customer.name}
                   </span>
                   <div className="flex items-center text-xs text-muted-foreground mt-1">
@@ -141,22 +231,33 @@ export const Customers: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="block font-semibold text-foreground">
-                    {customer.orders} Orders
+                  <span className="block font-semibold text-foreground text-sm">
+                    {customer.orders}
                   </span>
                   <span className="text-xs text-muted-foreground block">
-                    ₹{customer.spent.toFixed(2)}
+                    orders
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-border">
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  Last: {customer.lastOrderDate}
+                <div className="space-y-0.5">
+                  <p className="text-xs text-muted-foreground">Total Spent</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    ₹{customer.spent.toFixed(2)}
+                  </p>
                 </div>
-                <div className="flex gap-1">
-                  {customer.tags.slice(0, 2).map((tag) => (
+                <div className="text-right space-y-0.5">
+                  <p className="text-xs text-muted-foreground">Last Order</p>
+                  <p className="text-xs font-medium text-foreground">
+                    {customer.lastOrderDate}
+                  </p>
+                </div>
+              </div>
+
+              {customer.tags.length > 0 && (
+                <div className="flex gap-1 mt-2 pt-2 border-t border-border">
+                  {customer.tags.slice(0, 3).map((tag) => (
                     <Badge
                       key={tag}
                       variant="secondary"
@@ -165,16 +266,16 @@ export const Customers: React.FC = () => {
                       {tag}
                     </Badge>
                   ))}
-                  {customer.tags.length > 2 && (
+                  {customer.tags.length > 3 && (
                     <Badge
                       variant="secondary"
                       className="text-[10px] px-1.5 py-0 h-5"
                     >
-                      +{customer.tags.length - 2}
+                      +{customer.tags.length - 3}
                     </Badge>
                   )}
                 </div>
-              </div>
+              )}
             </div>
           ))
         ) : (

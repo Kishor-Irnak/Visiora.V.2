@@ -35,6 +35,6 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "."),
       },
     },
-    base: "/Visiora/",
+    base: "/Visiora.V.2/",
   };
 });

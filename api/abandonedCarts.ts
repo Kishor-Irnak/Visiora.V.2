@@ -22,7 +22,7 @@ function calculateTimeAgo(dateString: string): string {
 export const fetchAbandonedCarts = async (): Promise<AppAbandonedCart[]> => {
   try {
     const [checkoutsResponse, products] = await Promise.all([
-      fetch(`${API_BASE}/checkouts.json?limit=50`),
+      fetch(`${API_BASE}/checkouts.json?limit=250`),
       fetchProducts(),
     ]);
 

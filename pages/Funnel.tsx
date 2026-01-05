@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { KPICard } from "../components/Dashboard/KPICard";
 import {
   Card,
   CardContent,
@@ -96,32 +97,13 @@ export const Funnel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {funnelData.map((step, index) => (
-          <Card key={step.name} className="h-full">
-            <CardContent className="p-6 sm:p-8 flex flex-col justify-between gap-4 h-full">
-              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                {step.name}
-              </div>
-              <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                  {step.value.toLocaleString()}
-                </div>
-                {index < funnelData.length - 1 ? (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                    <span className="text-red-600 dark:text-red-400 font-semibold">
-                      {step.dropoff}%
-                    </span>
-                    <span>drop-off</span>
-                  </div>
-                ) : (
-                  <div className="text-xs text-muted-foreground font-medium">
-                    Conversion Goal
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <KPICard
+            key={step.name}
+            label={step.name}
+            value={step.value.toLocaleString()}
+          />
         ))}
       </div>
 

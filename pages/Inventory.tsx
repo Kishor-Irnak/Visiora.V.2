@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "../components/ui/Card";
+import { KPICard } from "../components/Dashboard/KPICard";
 import { Badge } from "../components/ui/Badge";
 import { fetchProducts, AppProduct } from "../api/products";
 import {
@@ -160,48 +161,22 @@ export const Inventory: React.FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        <Card className="border-l-4 border-l-primary h-full">
-          <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground tracking-wide">
-                Total Products
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                {stats.totalSKUs}
-              </p>
-            </div>
-            <Package className="h-8 w-8 text-muted-foreground opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-yellow-500 h-full">
-          <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground tracking-wide">
-                Low Stock
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                {stats.lowStock}
-              </p>
-            </div>
-            <AlertTriangle className="h-8 w-8 text-yellow-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-red-500 h-full">
-          <CardContent className="p-6 sm:p-8 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground tracking-wide">
-                Out of Stock
-              </p>
-              <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                {stats.outOfStock}
-              </p>
-            </div>
-            <AlertCircle className="h-8 w-8 text-red-500 opacity-50" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <KPICard
+          label="Total Products"
+          value={stats.totalSKUs.toString()}
+          icon={<Package className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Low Stock"
+          value={stats.lowStock.toString()}
+          icon={<AlertTriangle className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Out of Stock"
+          value={stats.outOfStock.toString()}
+          icon={<AlertCircle className="h-6 w-6" />}
+        />
       </div>
 
       {/* Charts Section */}
@@ -214,26 +189,34 @@ export const Inventory: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <div className="h-[300px] w-full flex justify-center">
+            <div className="h-[280px] sm:h-[300px] w-full flex justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={stats.categoryData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
+                    cy="45%"
+                    innerRadius={50}
+                    outerRadius={70}
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {stats.categoryData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={`hsl(var(--primary) / ${
-                          1 - index * (0.8 / stats.categoryData.length)
-                        })`}
-                      />
-                    ))}
+                    {stats.categoryData.map((entry, index) => {
+                      const colors = [
+                        "hsl(var(--primary))",
+                        "hsl(217, 91%, 60%)", // Blue
+                        "hsl(142, 71%, 45%)", // Green
+                        "hsl(31, 97%, 55%)", // Orange
+                        "hsl(271, 91%, 65%)", // Purple
+                        "hsl(346, 84%, 61%)", // Pink
+                      ];
+                      return (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={colors[index % colors.length]}
+                        />
+                      );
+                    })}
                   </Pie>
                   <Tooltip
                     contentStyle={{
@@ -243,7 +226,13 @@ export const Inventory: React.FC = () => {
                     }}
                     itemStyle={{ color: "hsl(var(--foreground))" }}
                   />
-                  <Legend />
+                  <Legend
+                    wrapperStyle={{ fontSize: "12px" }}
+                    iconSize={8}
+                    layout="horizontal"
+                    align="center"
+                    verticalAlign="bottom"
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -258,22 +247,22 @@ export const Inventory: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <div className="h-[300px] w-full">
+            <div className="h-[280px] sm:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={stats.topStock}
                   layout="vertical"
-                  margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                  margin={{ left: 0, right: 10, top: 5, bottom: 5 }}
                 >
                   <XAxis type="number" hide />
                   <YAxis
                     type="category"
                     dataKey="name"
                     stroke="#888888"
-                    fontSize={12}
+                    fontSize={11}
                     tickLine={false}
                     axisLine={false}
-                    width={100}
+                    width={80}
                   />
                   <Tooltip
                     cursor={{ fill: "transparent" }}
@@ -284,7 +273,7 @@ export const Inventory: React.FC = () => {
                     }}
                     itemStyle={{ color: "hsl(var(--foreground))" }}
                   />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={30}>
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
                     {stats.topStock.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
@@ -315,21 +304,48 @@ export const Inventory: React.FC = () => {
       </div>
 
       {/* --- MOBILE CARD LIST (Visible on small screens) --- */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-3">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-card border border-border rounded-lg p-4 shadow-sm space-y-3 hover:shadow-md transition-shadow"
+              className="bg-card border border-border rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <span className="font-semibold text-foreground text-base">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="h-16 w-16 rounded-lg bg-muted border border-border overflow-hidden shrink-0">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">
                     {product.name}
-                  </span>
+                  </h3>
                   <p className="text-xs text-muted-foreground">
                     ID: {product.id}
                   </p>
+                  <Badge variant="outline" className="text-xs font-normal">
+                    {product.category}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <div className="flex items-center gap-3">
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Stock</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      {product.stock}
+                    </p>
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs text-muted-foreground">Price</p>
+                    <p className="text-sm font-semibold text-foreground">
+                      ₹{product.price.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
                 <Badge
                   variant={
@@ -339,33 +355,14 @@ export const Inventory: React.FC = () => {
                       ? "warning"
                       : "secondary"
                   }
+                  className="text-xs"
                 >
                   {product.stock === 0
                     ? "Out of Stock"
                     : product.stock <= 10
-                    ? "Low Stock"
+                    ? "Low"
                     : "In Stock"}
                 </Badge>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-lg bg-muted border border-border overflow-hidden shrink-0">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {product.category}
-                  </p>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span>Stock: {product.stock}</span>
-                    <span>•</span>
-                    <span>₹{product.price.toFixed(2)}</span>
-                  </div>
-                </div>
               </div>
             </div>
           ))

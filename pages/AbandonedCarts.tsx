@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "../components/ui/Card";
+import { KPICard } from "../components/Dashboard/KPICard";
 import { Button } from "../components/ui/Button";
 import { fetchAbandonedCarts, AppAbandonedCart } from "../api/abandonedCarts";
 import {
@@ -132,48 +133,22 @@ export const AbandonedCarts: React.FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card className="border-l-4 border-l-red-500">
-          <CardContent className="p-6 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Abandoned Sessions
-              </p>
-              <p className="text-2xl font-bold tracking-tight">
-                {stats.sessions}
-              </p>
-            </div>
-            <ShoppingCart className="h-8 w-8 text-red-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-6 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Potential Revenue
-              </p>
-              <p className="text-2xl font-bold tracking-tight">
-                ₹{stats.potentialRevenue.toLocaleString()}
-              </p>
-            </div>
-            <AlertOctagon className="h-8 w-8 text-blue-500 opacity-50" />
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-6 flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">
-                Recovery Rate
-              </p>
-              <p className="text-2xl font-bold tracking-tight">
-                {stats.recoveryRate}%
-              </p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-green-500 opacity-50" />
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <KPICard
+          label="Abandoned Sessions"
+          value={stats.sessions.toString()}
+          icon={<ShoppingCart className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Potential Revenue"
+          value={`₹${stats.potentialRevenue.toLocaleString()}`}
+          icon={<AlertOctagon className="h-6 w-6" />}
+        />
+        <KPICard
+          label="Recovery Rate"
+          value={`${stats.recoveryRate}%`}
+          icon={<TrendingUp className="h-6 w-6" />}
+        />
       </div>
 
       {/* Filter Section */}
